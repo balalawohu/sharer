@@ -2,15 +2,25 @@
 // 校验通过返回 null，失败返回错误提示信息
 
 /**
+ * 校验手机号格式：中国大陆手机号，11位数字，1开头、第二位3-9
+ * @param {string} phone
+ * @returns {string|null} 错误提示信息，null 表示校验通过
+ */
+export function validatePhone(phone) {
+    if (!/^1[3-9]\d{9}$/.test(phone)) return '手机号格式不正确';
+    return null;
+}
+
+/**
  * 校验注册参数
- * @param {{username?: string, account?: string, password?: string}} params
+ * @param {{username?: string, account?: string, password?: string, email?: string}} params
  * @returns {string|null} 错误提示信息，null 表示校验通过
  */
 export function validateRegister({ username, account, password, email }) {
     if (!username || !username.trim()) return '用户昵称不能为空';
     if (username.trim().length > 50) return '用户昵称不能超过50个字符';
     if (!account || !account.trim()) return '登录账号不能为空';
-    if (account.trim().length < 4 || account.trim().length > 50) return '登录账号长度需为4-50个字符';
+    if (validatePhone(account.trim()) !== null) return '登录账号必须是手机号';
     if (!password) return '密码不能为空';
     if (password.length < 6 || password.length > 32) return '密码长度需为6-32个字符';
     if (validatePasswordStrength(password) !== null) return '密码强度不足：需同时包含字母和数字';

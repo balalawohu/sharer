@@ -1,0 +1,248 @@
+/* 全局样式：设计变量沿用 example 项目的配色体系 */
+:root {
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --text: #1f2933;
+  --text-soft: #6b7785;
+  --border: #e6eaf0;
+  --primary: #4f6ef7;
+  --primary-dark: #3d59e0;
+  --green: #21a67a;
+  --red: #e5544b;
+  --amber: #f0a020;
+  --shadow: 0 6px 20px rgba(31, 41, 51, 0.07);
+  --radius: 14px;
+  --max-width: 1200px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- 通用容器 ---------- */
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.page {
+  padding: 24px 0 60px;
+}
+
+/* ---------- 通用面板 ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.panel + .panel {
+  margin-top: 16px;
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  color: #fff;
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-danger {
+  color: var(--red);
+}
+
+.btn-danger:hover:not(:disabled) {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+/* ---------- 标签 / 徽标 ---------- */
+.tag-chip {
+  display: inline-block;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 12px;
+  line-height: 24px;
+  color: var(--text-soft);
+  background: #f2f4f8;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tag-chip:hover {
+  color: var(--primary);
+  background: rgba(79, 110, 247, 0.1);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  background: #f2f4f8;
+  color: var(--text-soft);
+}
+
+.badge-type {
+  color: var(--primary);
+  background: rgba(79, 110, 247, 0.1);
+}
+
+.badge-shared {
+  color: var(--green);
+  background: rgba(33, 166, 122, 0.1);
+}
+
+.badge-private {
+  color: var(--text-soft);
+  background: #f2f4f8;
+}
+
+/* ---------- 卡片网格 ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ---------- Tab 切换 ---------- */
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tab {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: var(--text-soft);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tab:hover {
+  color: var(--primary);
+}
+
+.tab.active {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* ---------- 统计条 ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-num {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.stat-label {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+/* ---------- 空状态 ---------- */
+.empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-soft);
+}
+
+.empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+/* ---------- 区块标题 ---------- */
+.section-title {
+  margin: 24px 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
+}

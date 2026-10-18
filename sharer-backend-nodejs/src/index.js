@@ -5,6 +5,8 @@ import cors from 'cors';
 import resp from './utils/resp.js';
 import router from './routes/index.js';
 import sequelize from './config/db.js';
+import { UPLOAD_ROOT } from './config/upload.js';
+import uploadErrorHandler from './middlewares/uploadError.middleware.js';
 
 const app = express();
 
@@ -13,6 +15,7 @@ app.use(cors());                // 跨域
 app.use(express.json());        // 解析 JSON 请求体
 app.use(express.urlencoded({ extended: true })); // 解析表单请求体
 app.use(resp);                  // 挂载 res.ok / res.fail 统一返回格式
+app.use('/uploads', express.static(UPLOAD_ROOT)); // 静态资源访问：/uploads/image/xxx.png
 
 // ---------- 路由 ----------
 app.use('/api', router);
@@ -26,6 +29,9 @@ app.get('/', (req, res) => {
 app.use((req, res) => {
   res.fail('接口不存在: ' + req.method + ' ' + req.path, 404);
 });
+
+// ---------- 上传错误（multer）----------
+app.use(uploadErrorHandler);
 
 // ---------- 全局错误处理 ----------
 app.use((err, req, res, next) => {

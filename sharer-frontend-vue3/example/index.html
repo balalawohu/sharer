@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>资源共享平台</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- 登录 / 注册遮罩 -->
+  <div class="modal-mask auth-mask" id="authModal">
+    <div class="modal auth-modal">
+      <div class="auth-brand">🌐 资源共享平台</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-auth="login">登录</button>
+        <button class="auth-tab" data-auth="register">注册</button>
+      </div>
+      <form id="authForm" class="modal-body" novalidate>
+        <label class="field">
+          <span>用户名 <i>*</i></span>
+          <input type="text" name="username" placeholder="请输入用户名" autocomplete="username" />
+        </label>
+        <label class="field">
+          <span>密码 <i>*</i></span>
+          <input type="password" name="password" placeholder="请输入密码" autocomplete="current-password" />
+        </label>
+        <div class="auth-error" id="authError"></div>
+        <button type="submit" class="btn btn-primary" id="authSubmit" style="width:100%">登录</button>
+      </form>
+      <p class="auth-hint">提示：首次使用请先「注册」。管理员演示账号：admin / admin123</p>
+    </div>
+  </div>
+
+  <!-- 顶部导航 -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-logo">🌐</span>
+        <span class="brand-name">资源共享平台</span>
+      </div>
+      <nav class="main-nav">
+        <button class="nav-link active" data-view="plaza">🏠 资源广场</button>
+        <button class="nav-link" data-view="mine">📁 我的资源</button>
+        <button class="nav-link" data-view="rank">🏆 排行榜</button>
+        <button class="nav-link" data-view="help">❓ 帮助中心</button>
+        <button class="nav-link admin-link" data-view="admin" id="adminNavLink" hidden>🛡 管理后台</button>
+      </nav>
+      <div class="search-box" id="searchBox">
+        <input id="searchInput" type="text" placeholder="搜索资源 / 标签 / 上传者…" />
+      </div>
+      <button class="bell-btn" id="notifBtn" title="消息通知">🔔<span class="bell-badge" id="notifBadge" hidden>0</span></button>
+      <button id="uploadBtn" class="btn btn-primary">＋ 上传资源</button>
+      <div class="user-area" id="userArea" hidden>
+        <img class="avatar" id="topAvatar" src="" alt="头像">
+        <span id="topUserName">我</span>
+        <button class="btn btn-sm" id="logoutBtn">退出</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= 资源广场 ================= -->
+  <section class="view" id="view-plaza">
+    <div class="stats">
+      <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">公开资源总数</div></div>
+      <div class="stat-card"><div class="stat-num" id="statUsers">0</div><div class="stat-label">参与用户数</div></div>
+      <div class="stat-card"><div class="stat-num" id="statDownloads">0</div><div class="stat-label">累计下载次数</div></div>
+      <div class="stat-card"><div class="stat-num" id="statComments">0</div><div class="stat-label">累计评论数</div></div>
+    </div>
+    <nav class="filter-tabs" id="plazaTabs">
+      <button class="tab active" data-filter="all">全部</button>
+      <button class="tab" data-filter="文档">📄 文档</button>
+      <button class="tab" data-filter="图片">🖼️ 图片</button>
+      <button class="tab" data-filter="视频">🎬 视频</button>
+      <button class="tab" data-filter="音频">🎵 音频</button>
+      <button class="tab" data-filter="压缩包">🗜️ 压缩包</button>
+      <button class="tab" data-filter="代码">💻 代码</button>
+      <button class="tab" data-filter="其他">📦 其他</button>
+    </nav>
+    <main class="grid" id="plazaGrid"></main>
+    <div class="empty" id="plazaEmpty" hidden>
+      <div class="empty-icon">🧭</div>
+      <p>广场上暂时没有符合条件的资源，去上传一个吧～</p>
+    </div>
+  </section>
+
+  <!-- ================= 我的资源（含账号信息 / 批量操作 / 历史） ================= -->
+  <section class="view" id="view-mine" hidden>
+    <div class="account-card">
+      <img class="avatar avatar-lg" id="acAvatar" src="" alt="头像">
+      <div class="account-info">
+        <h3 id="acName">— <span class="role-badge" id="acRole">【普通用户】</span></h3>
+        <p id="acMeta">—</p>
+      </div>
+      <button class="btn" id="profileBtn">✏️ 修改资料</button>
+      <button class="btn" id="acLogoutBtn">退出登录</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-num" id="statMineTotal">0</div><div class="stat-label">我的资源数</div></div>
+      <div class="stat-card"><div class="stat-num" id="statMineShared">0</div><div class="stat-label">已公开分享</div></div>
+      <div class="stat-card"><div class="stat-num" id="statMineFav">0</div><div class="stat-label">我的收藏</div></div>
+      <div class="stat-card"><div class="stat-num" id="statMineDownloads">0</div><div class="stat-label">累计被下载</div></div>
+    </div>
+
+    <nav class="filter-tabs" id="mineTabs">
+      <button class="tab active" data-filter="all">全部</button>
+      <button class="tab" data-filter="shared">已分享</button>
+      <button class="tab" data-filter="private">未分享</button>
+      <button class="tab" data-filter="fav">⭐ 收藏</button>
+    </nav>
+
+    <div class="mine-tools">
+      <button class="btn btn-sm" id="batchBtn">☑ 批量管理</button>
+    </div>
+    <div class="batch-bar" id="batchBar" hidden>
+      <span>已选 <b id="batchCount">0</b> 项</span>
+      <button class="btn btn-sm" id="batchSelectAll">全选</button>
+      <button class="btn btn-sm" id="batchShare">批量公开</button>
+      <button class="btn btn-sm" id="batchUnshare">批量私有</button>
+      <button class="btn btn-sm" id="batchDelete" style="color:var(--red)">批量删除</button>
+      <button class="btn btn-sm" id="batchExit">完成</button>
+    </div>
+
+    <main class="grid" id="mineGrid"></main>
+    <div class="empty" id="mineEmpty" hidden>
+      <div class="empty-icon">📭</div>
+      <p>这里还没有资源</p>
+    </div>
+
+    <div class="history-row">
+      <div class="panel history-panel">
+        <h4 class="panel-title">⬇ 我下载过的</h4>
+        <div id="dlHistory"></div>
+        <div class="empty mini-empty" id="dlHistoryEmpty" hidden><p>暂无下载记录</p></div>
+      </div>
+      <div class="panel history-panel">
+        <h4 class="panel-title">👀 我看过的</h4>
+        <div id="viewHistory"></div>
+        <div class="empty mini-empty" id="viewHistoryEmpty" hidden><p>暂无浏览记录</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 资源详情 ================= -->
+  <section class="view" id="view-detail" hidden>
+    <div class="detail-wrap" id="detailWrap"></div>
+  </section>
+
+  <!-- ================= 排行榜 ================= -->
+  <section class="view" id="view-rank" hidden>
+    <div class="rank-head">
+      <h2>🏆 排行榜</h2>
+      <p>基于公开资源数据实时统计</p>
+    </div>
+    <nav class="filter-tabs" id="rankTabs">
+      <button class="tab active" data-rank="downloads">⬇ 下载榜</button>
+      <button class="tab" data-rank="rating">⭐ 高分榜</button>
+      <button class="tab" data-rank="new">🆕 最新榜</button>
+      <button class="tab" data-rank="users">👑 活跃用户榜</button>
+    </nav>
+    <div class="rank-wrap" id="rankList"></div>
+    <div class="empty" id="rankEmpty" hidden>
+      <div class="empty-icon">📊</div><p>暂无排行数据</p>
+    </div>
+  </section>
+
+  <!-- ================= 帮助中心 ================= -->
+  <section class="view" id="view-help" hidden>
+    <div class="help-wrap">
+      <div class="help-head">
+        <h2>❓ 帮助中心</h2>
+        <p>常见问题与使用说明</p>
+      </div>
+      <div class="faq" id="faqList"></div>
+      <div class="about-panel">
+        <h4>关于本平台</h4>
+        <p>资源共享平台是一个纯前端演示项目：支持注册登录、上传资源、公开分享、下载与删除、评论评分、收藏、标签、举报与管理后台。所有数据仅保存在浏览器 localStorage 中。管理员演示账号：admin / admin123。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 消息通知中心 ================= -->
+  <section class="view" id="view-notif" hidden>
+    <div class="notif-wrap">
+      <div class="notif-head">
+        <h3>🔔 消息通知</h3>
+        <button class="btn btn-sm" id="readAllBtn">全部已读</button>
+      </div>
+      <div id="notifList"></div>
+      <div class="empty" id="notifEmpty" hidden>
+        <div class="empty-icon">🔕</div><p>暂无消息通知</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 管理后台 ================= -->
+  <section class="view" id="view-admin" hidden>
+    <div class="admin-wrap">
+      <div class="stats">
+        <div class="stat-card"><div class="stat-num" id="adUsers">0</div><div class="stat-label">注册用户</div></div>
+        <div class="stat-card"><div class="stat-num" id="adResources">0</div><div class="stat-label">资源总数</div></div>
+        <div class="stat-card"><div class="stat-num" id="adReports">0</div><div class="stat-label">待处理举报</div></div>
+        <div class="stat-card"><div class="stat-num" id="adHandled">0</div><div class="stat-label">已处理举报</div></div>
+      </div>
+      <div class="panel" id="panelReports">
+        <h4 class="panel-title">举报处理</h4>
+        <div id="reportList"></div>
+        <div class="empty mini-empty" id="reportEmpty" hidden><p>暂无待处理举报</p></div>
+      </div>
+
+      <div class="panel" id="panelUsers" hidden>
+        <h4 class="panel-title">用户与角色管理</h4>
+        <div id="userList"></div>
+      </div>
+
+      <div class="panel" id="panelLogs" hidden>
+        <h4 class="panel-title">系统操作日志（最近 50 条）</h4>
+        <div id="logList"></div>
+        <div class="empty mini-empty" id="logEmpty" hidden><p>暂无日志</p></div>
+      </div>
+
+      <div class="panel" id="adminDenied" hidden>
+        <h4 class="panel-title">无访问权限</h4>
+        <p class="hint">当前角色为「普通用户」，没有后台管理权限。请使用管理员或运维账号登录。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 搜索结果 ================= -->
+  <section class="view" id="view-search" hidden>
+    <div class="search-head">
+      <button class="btn btn-sm" id="backBtn">← 返回</button>
+      <h3 id="searchTitle">搜索结果</h3>
+      <button class="btn btn-sm" id="clearSearchBtn">清空关键词</button>
+    </div>
+    <main class="grid" id="searchGrid"></main>
+    <div class="empty" id="searchEmpty" hidden>
+      <div class="empty-icon">🔍</div>
+      <p>没有找到匹配的资源，换个关键词试试吧～</p>
+    </div>
+  </section>
+
+  <!-- 底部信息栏 -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-col footer-about">
+        <div class="footer-brand">🌐 资源共享平台</div>
+        <p>一个用于资源上传、公开分享与下载的演示平台。<br>纯前端 Mock 实现，无真实后端。</p>
+      </div>
+      <div class="footer-col">
+        <h5>快速导航</h5>
+        <button class="footer-link" data-goto="plaza">🏠 资源广场</button>
+        <button class="footer-link" data-goto="mine">📁 我的资源</button>
+        <button class="footer-link" data-goto="rank">🏆 排行榜</button>
+        <button class="footer-link" data-goto="help">❓ 帮助中心</button>
+      </div>
+      <div class="footer-col">
+        <h5>注册信息</h5>
+        <div class="footer-reg" id="footerReg">尚未登录</div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 资源共享平台 · 仅用于前端演示 · 所有数据保存在你的浏览器 localStorage 中</div>
+  </footer>
+
+  <!-- 上传弹窗 -->
+  <div class="modal-mask" id="uploadModal" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h3>上传资源</h3>
+        <button class="modal-close" id="closeUpload">✕</button>
+      </div>
+      <form id="uploadForm" class="modal-body" novalidate>
+        <label class="field">
+          <span>资源名称 <i>*</i></span>
+          <input type="text" name="name" placeholder="例如：2026 产品设计规范" />
+        </label>
+        <label class="field">
+          <span>资源类型</span>
+          <select name="type">
+            <option value="文档">📄 文档</option>
+            <option value="图片">🖼️ 图片</option>
+            <option value="视频">🎬 视频</option>
+            <option value="音频">🎵 音频</option>
+            <option value="压缩包">🗜️ 压缩包</option>
+            <option value="代码">💻 代码</option>
+            <option value="其他">📦 其他</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>标签（选填，空格或逗号分隔，最多 5 个）</span>
+          <input type="text" name="tags" placeholder="例如：前端 设计 4K" />
+        </label>
+        <label class="field">
+          <span>资源描述</span>
+          <textarea name="desc" rows="3" placeholder="简单介绍一下这个资源…"></textarea>
+        </label>
+        <label class="field">
+          <span>选择文件 <i>*</i></span>
+          <input type="file" name="file" id="fileInput" />
+          <small class="hint">文件仅用于前端模拟，不会真正上传到服务器。</small>
+        </label>
+        <label class="field switch-field">
+          <span>公开分享</span>
+          <label class="switch">
+            <input type="checkbox" name="shared" checked />
+            <span class="slider"></span>
+          </label>
+          <small class="hint">关闭后，仅你自己可见，他人无法下载。</small>
+        </label>
+        <div class="modal-foot">
+          <button type="button" class="btn" id="cancelUpload">取消</button>
+          <button type="submit" class="btn btn-primary">确认上传</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 编辑资源弹窗 -->
+  <div class="modal-mask" id="editModal" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h3>编辑资源</h3>
+        <button class="modal-close" id="closeEdit">✕</button>
+      </div>
+      <form id="editForm" class="modal-body" novalidate>
+        <label class="field"><span>资源名称 <i>*</i></span><input type="text" name="name" /></label>
+        <label class="field">
+          <span>资源类型</span>
+          <select name="type">
+            <option value="文档">📄 文档</option>
+            <option value="图片">🖼️ 图片</option>
+            <option value="视频">🎬 视频</option>
+            <option value="音频">🎵 音频</option>
+            <option value="压缩包">🗜️ 压缩包</option>
+            <option value="代码">💻 代码</option>
+            <option value="其他">📦 其他</option>
+          </select>
+        </label>
+        <label class="field"><span>标签（空格或逗号分隔，最多 5 个）</span><input type="text" name="tags" /></label>
+        <label class="field"><span>资源描述</span><textarea name="desc" rows="3"></textarea></label>
+        <label class="field switch-field">
+          <span>公开分享</span>
+          <label class="switch">
+            <input type="checkbox" name="shared" />
+            <span class="slider"></span>
+          </label>
+        </label>
+        <div class="modal-foot">
+          <button type="button" class="btn" id="cancelEdit">取消</button>
+          <button type="submit" class="btn btn-primary">保存修改</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 举报弹窗 -->
+  <div class="modal-mask" id="reportModal" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h3>⚠️ 举报资源</h3>
+        <button class="modal-close" id="closeReport">✕</button>
+      </div>
+      <form id="reportForm" class="modal-body" novalidate>
+        <p class="hint" id="reportTarget">—</p>
+        <label class="field">
+          <span>举报原因 <i>*</i></span>
+          <select name="reason">
+            <option value="违法违规">违法违规</option>
+            <option value="侵权盗版">侵权盗版</option>
+            <option value="垃圾广告">垃圾广告</option>
+            <option value="内容不当">内容不当</option>
+            <option value="其他">其他</option>
+          </select>
+        </label>
+        <label class="field"><span>补充说明（选填）</span><textarea name="detail" rows="3" placeholder="补充描述问题…"></textarea></label>
+        <div class="modal-foot">
+          <button type="button" class="btn" id="cancelReport">取消</button>
+          <button type="submit" class="btn btn-primary">提交举报</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 修改资料弹窗 -->
+  <div class="modal-mask" id="profileModal" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h3>✏️ 修改个人资料</h3>
+        <button class="modal-close" id="closeProfile">✕</button>
+      </div>
+      <form id="profileForm" class="modal-body" novalidate>
+        <label class="field">
+          <span>昵称（选填，展示用）</span>
+          <input type="text" name="displayName" placeholder="不填则显示用户名" />
+        </label>
+        <div class="field">
+          <span>头像（选择一个）</span>
+          <div class="avatar-pick" id="avatarPick"></div>
+        </div>
+        <div class="field">
+          <span>修改密码（不需要修改请留空）</span>
+          <input type="password" name="oldpwd" placeholder="当前密码" autocomplete="current-password" />
+          <input type="password" name="newpwd" placeholder="新密码（至少 4 位）" autocomplete="new-password" />
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn" id="cancelProfile">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast 容器 -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -81,6 +81,15 @@ export async function findUserByAccount(account) {
 }
 
 /**
+ * 按主键查询用户（获取个人资料复用）
+ * @param {number} id
+ * @returns {Promise<import('sequelize').Model|null>}
+ */
+export async function findUserById(id) {
+    return User.findByPk(id);
+}
+
+/**
  * 按登录账号或邮箱查询用户（登录接口复用）
  * @param {string} identifier 账号或邮箱
  * @returns {Promise<import('sequelize').Model|null>} 含密码的完整模型实例

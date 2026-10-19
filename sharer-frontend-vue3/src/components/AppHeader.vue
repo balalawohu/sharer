@@ -59,12 +59,12 @@ function handleLogout() {
                 <button class="btn btn-primary btn-sm" @click="emit('upload')">＋ 上传资源</button>
 
                 <template v-if="isLogin">
-                    <div class="user-area">
+                    <RouterLink to="/mine" class="user-area">
                         <span v-if="!avatarUrl" class="avatar-text">{{ nickname.slice(0, 1) }}</span>
                         <img v-else :src="avatarUrl" alt="头像" class="avatar-img">
                         <span class="user-name">{{ nickname }}</span>
-                        <button class="link-btn" @click="handleLogout">退出</button>
-                    </div>
+                    </RouterLink>
+                    <button class="link-btn" @click="handleLogout">退出</button>
                 </template>
                 <template v-else>
                     <RouterLink to="/login" class="btn btn-sm">登录</RouterLink>

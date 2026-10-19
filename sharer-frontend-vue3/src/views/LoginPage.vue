@@ -1,9 +1,11 @@
 <script setup>
 import { reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { authAPI } from '../api/index.js';
+import { useRoute, useRouter } from 'vue-router';
+import { useUserStore } from '../stores/user';
 
 const router = useRouter();
+const route = useRoute();
+const userStore = useUserStore();
 
 const form = reactive({
     identifier: '',  // 登录标识：注册手机号或邮箱
@@ -27,10 +29,11 @@ async function handleLogin() {
     if (!form.identifier.trim()) return errorMsg.value = '请输入手机号或邮箱';
     if (!form.password) return errorMsg.value = '请输入密码';
 
-    // 2. 调用登录接口，后端返回 { code, msg, data: { token, user } }
+    // 2. 通过 store 登录：成功后同步更新 token / 用户信息 / localStorage，
+    //    这样导航栏、上传按钮等依赖 isLogin 的地方会立即响应
     loading.value = true;
     try {
-        const res = await authAPI.login({
+        const res = await userStore.login({
             identifier: form.identifier.trim(),
             password: form.password
         });
@@ -41,11 +44,9 @@ async function handleLogin() {
             return;
         }
 
-        // 3. 登录成功：保存 token（key 必须是 token，request.js 拦截器按此 key 取值）
-        localStorage.setItem('token', res.data.token);
-
-        // 4. 跳转到首页
-        router.push('/');
+        // 3. 登录成功，跳转到登录前想去的页面（守卫带上的 redirect），默认去广场
+        const redirect = route.query.redirect?.toString();
+        router.push(redirect || '/plaza');
     } catch (err) {
         // 网络错误等异常，拦截器已封装错误信息
         errorMsg.value = err.message || '登录失败，请稍后重试';

@@ -67,7 +67,8 @@ Authorization: Bearer <登录后返回的 token>
 | 2 | 用户注册 | POST | `/api/user/register` | 可用 |
 | 3 | 用户登录 | POST | `/api/user/login` | 可用 |
 | 4 | 退出登录 | POST | `/api/user/logout` | 可用 |
-| 5 | 上传图片 | POST | `/api/upload/image` | 可用，需登录 |
+| 5 | 获取当前用户信息 | GET | `/api/user/profile` | 可用，需登录 |
+| 6 | 上传图片 | POST | `/api/upload/image` | 可用，需登录 |
 | 6 | 上传音频 | POST | `/api/upload/audio` | 可用，需登录 |
 | 7 | 上传视频 | POST | `/api/upload/video` | 可用，需登录 |
 | 8 | 我的资源列表 | GET | `/api/upload/list` | 可用，需登录 |
@@ -274,6 +275,42 @@ Authorization: Bearer <登录后返回的 token>
 **实现说明**
 
 JWT 是无状态的，服务端不保存会话。真正的退出动作由**前端清除本地 token** 完成，后端仅返回一个成功标识作为约定。后续若需要「强制下线」能力，需引入 Redis 维护 token 黑名单。
+
+---
+
+### 3.5 获取当前用户信息
+
+- **方法**：`GET`
+- **路径**：`/api/user/profile`
+- **请求头**：`Authorization: Bearer <token>`（必填）
+
+**成功响应**
+
+```json
+{
+  "code": 200,
+  "msg": "查询成功",
+  "data": {
+    "id": 1,
+    "username": "测试用户",
+    "account": "13800138000",
+    "avatar": null,
+    "email": "tester01@example.com",
+    "status": 1,
+    "created_at": "2026-10-17T08:00:00.000Z",
+    "updated_at": "2026-10-17T08:00:00.000Z"
+  }
+}
+```
+
+**失败场景**
+
+| code | msg | 触发条件 |
+|---|---|---|
+| 401 | 未提供登录凭证 | 未携带 token |
+| 401 | 登录凭证无效或已过期 | token 错误或超 7 天 |
+| 403 | 该账号已被禁用，请联系管理员 | `status ≠ 1` |
+| 404 | 用户不存在 | token 有效但账号已被删除 |
 
 ---
 

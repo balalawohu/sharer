@@ -56,6 +56,11 @@ const router = createRouter({
           meta: { title: '排行榜' }
         },
         {
+          // 个人名片已合并进「我的资源」页，保留旧路径做重定向
+          path: 'profile',
+          redirect: '/mine'
+        },
+        {
           path: 'help',
           name: 'Help',
           component: () => import('../views/HelpPage.vue'),
@@ -75,6 +80,14 @@ const router = createRouter({
 // 全局后置守卫：设置页面标题
 router.afterEach(to => {
   document.title = to.meta.title ? `${to.meta.title} - 趣分` : '趣分'
+})
+
+// 登录守卫：标记了 requiresAuth 的页面未登录时跳转登录页
+router.beforeEach(to => {
+  const token = localStorage.getItem('token')
+  if (to.meta.requiresAuth && !token) {
+    return { name: 'Login', query: { redirect: to.fullPath } }
+  }
 })
 
 export default router

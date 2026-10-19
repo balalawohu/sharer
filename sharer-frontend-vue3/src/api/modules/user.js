@@ -25,6 +25,13 @@ const authAPI = {
             url: '/user/logout',
             method: 'post'
         });
+    },
+    // 获取当前登录用户信息（需登录态，拦截器自动带 token）
+    getProfile() {
+        return request({
+            url: '/user/profile',
+            method: 'get'
+        });
     }
 };
 

@@ -2,6 +2,7 @@
 // 职责：提取请求参数 → 调用校验/服务层 → 用统一格式响应，不写业务逻辑
 import { validateRegister, validateLogin } from '../utils/validator.js';
 import { registerUser, loginUser, ServiceError } from '../services/user.service.js';
+import { findUserById } from '../services/user.service.js';
 
 // ---------- 注册 ----------
 export async function register(req, res) {
@@ -54,4 +55,19 @@ export async function login(req, res) {
 // 后端在此只需约定：前端调用后删除 token 即可。
 export async function logout(req, res) {
     return res.ok(null, '退出成功');
+}
+
+// ---------- 获取当前用户信息 ----------
+// 依赖鉴权中间件：token 解析成功后 req.user 已挂载（不含 password）
+export async function getProfile(req, res) {
+    try {
+        const user = await findUserById(req.user.id);
+        if (!user) return res.fail('用户不存在', 404);
+
+        const { password: _, ...safeUser } = user.toJSON();
+        return res.ok(safeUser, '查询成功');
+    } catch (error) {
+        console.error('[查询用户信息失败]', error);
+        return res.fail('查询失败，请稍后重试', 500);
+    }
 }

@@ -55,6 +55,64 @@ export const MOCK_NOTIFICATIONS = [
     { id: 3, type: 'download', text: '用户「陈宇」下载了你的资源「城市夜景航拍素材包」。', time: '2026-10-16 09:11:02', read: true }
 ];
 
+/**
+ * 批量生成模拟资源（用于性能自测、列表分页/虚拟滚动验证）
+ * 用生成函数而不是手写数组，避免文件体积爆炸
+ * @param {number} count 生成条数
+ * @param {number} startId 起始 ID，避免与精选数据冲突
+ */
+export function generateResources(count, startId = 100) {
+    const uploaders = ['林晓', '陈宇', 'Alex', '苏琳', '赵明', '王浩', '张一鸣', '李雷'];
+    const theme = ['设计素材', '前端教程', '短视频', '免版权音乐', 'PPT模板', '摄影原片', '代码合集', '学习笔记'];
+    const kinds = [
+        { type: 'image', mime: 'image/jpeg', ext: 'jpg', base: 500 * 1024 },
+        { type: 'audio', mime: 'audio/mpeg', ext: 'mp3', base: 8 * 1024 * 1024 },
+        { type: 'video', mime: 'video/mp4', ext: 'mp4', base: 80 * 1024 * 1024 },
+        { type: 'document', mime: 'application/pdf', ext: 'pdf', base: 2 * 1024 * 1024 }
+    ];
+    const tagPool = ['设计', '4K', '航拍', '前端', '性能优化', '教程', '音乐', '免版权', '模板', '效率', 'Python', '素材'];
+
+    const list = [];
+    // 以固定日期为基准往前推，保证数据可重复、便于对比测试结果
+    const baseDate = new Date('2026-10-18T00:00:00');
+
+    for (let i = 0; i < count; i++) {
+        const kind = kinds[i % kinds.length];
+        const uploader = uploaders[i % uploaders.length];
+        const title = `${theme[i % theme.length]} · 第 ${i + 1} 期`;
+
+        // 伪随机：基于下标做确定性取值，避免每次渲染数据都变
+        const rand = (i * 2654435761) % 1000;
+        const dayOffset = i % 365;
+
+        list.push({
+            id: startId + i,
+            title,
+            resource_type: kind.type,
+            mime_type: kind.mime,
+            file_name: `resource-${i}.${kind.ext}`,
+            file_size: kind.base + (rand % 100) * 1024,
+            visibility: i % 10 === 0 ? 0 : 1, // 约 10% 为私有，不进广场
+            description: `这是 ${title} 的描述信息，用于测试列表渲染与分页效果。`,
+            tags: `${tagPool[i % tagPool.length]},${tagPool[(i * 3) % tagPool.length]}`,
+            download_count: rand % 5000,
+            view_count: rand % 20000,
+            uploader_name: uploader,
+            created_at: new Date(baseDate.getTime() - dayOffset * 86400000).toISOString().slice(0, 10)
+        });
+    }
+    return list;
+}
+
+// 广场压测数据量：方便随时调小来验证性能差异
+export const PLAZA_MOCK_SIZE = 10000;
+
+// 广场数据源：精选数据 + 批量生成的模拟数据
+export const PLAZA_RESOURCES = [
+    ...MOCK_RESOURCES,
+    ...generateResources(PLAZA_MOCK_SIZE)
+];
+
 // 资源类型与中文名的映射
 export const RESOURCE_TYPES = [
     { value: 'image', label: '图片' },

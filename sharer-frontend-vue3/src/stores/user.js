@@ -49,5 +49,18 @@ export const useUserStore = defineStore('user', () => {
         localStorage.removeItem(USER_KEY);
     }
 
-    return { token, profile, isLogin, nickname, userId, avatarUrl, login, logout };
+    /**
+     * 拉取最新用户信息（个人名片页用）
+     * 服务端返回全量字段，刷新 store 与 localStorage
+     */
+    async function fetchProfile() {
+        const res = await authAPI.getProfile();
+        if (res.code !== 200) return res;
+
+        profile.value = res.data;
+        localStorage.setItem(USER_KEY, JSON.stringify(res.data));
+        return res;
+    }
+
+    return { token, profile, isLogin, nickname, userId, avatarUrl, login, logout, fetchProfile };
 });

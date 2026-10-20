@@ -1,0 +1,1 @@
+import {default as AuthAPI } from './modules/user'
